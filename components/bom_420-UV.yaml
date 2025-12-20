@@ -1,0 +1,11 @@
+# BOM Definition for UV Disinfection Package (420-UV)
+# Defines component datasheets required for this package
+
+package_template: 420-UV
+package_name: UV Disinfection Package
+
+components:
+  - template_id: 420-UVR
+    name: UV Reactor Module
+    qty_rule: num_channels
+    description: UV lamp modules with cleaning system

@@ -156,8 +156,8 @@ common:
   - field_name: "Lamp Life"
     severity: OPT
 
-# 510-GT: Gravity Thickener
-510-GT:
+# 601-GT: Gravity Thickener
+601-GT:
   - field_name: "Sludge Type"
     severity: REQ
   - field_name: "Thickener Configuration"
@@ -177,7 +177,7 @@ common:
 validation_rules:
   - name: "HRT consistency"
     formula: "volume / flow"
-    applies_to: ["130-CL", "240-SC", "510-GT"]
+    applies_to: ["130-CL", "240-SC", "601-GT"]
 
   - name: "Surface loading check"
     formula: "flow / area"

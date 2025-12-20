@@ -361,6 +361,13 @@ def build_workbook(template: dict) -> Workbook:
     if has_motor and motor_data:
         row = write_data_section(ws, row, 'DRIVER / MOTOR DATA', motor_data, validations)
 
+    # === ELECTRICAL DATA (for non-motor equipment with power requirements) ===
+    has_electrical = metadata.get('has_electrical', False)
+    electrical_data = sections.get('Electrical Data', [])
+    # Include if explicitly flagged OR if section exists in template
+    if (has_electrical or electrical_data) and electrical_data:
+        row = write_data_section(ws, row, 'ELECTRICAL DATA', electrical_data, validations)
+
     # === REMARKS / NOTES ===
     remarks = sections.get('Remarks', [])
     row = write_remarks_section(ws, row, remarks)

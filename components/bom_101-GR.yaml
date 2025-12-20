@@ -1,0 +1,24 @@
+# BOM Definition for Grit Removal Package (101-GR)
+# Defines component datasheets required for this package
+
+package_template: 101-GR
+package_name: Grit Removal Package
+
+components:
+  - template_id: 101-GW
+    name: Grit Washer-Classifier
+    qty_rule: num_trains
+    description: Grit cleaning and classification (one per train)
+
+  - template_id: 600-PP-CEN
+    name: Grit Pump
+    qty_rule: num_trains + 1
+    description: Grit slurry transfer (N duty + 1 standby)
+
+  - template_id: 101-CV
+    name: Grit Conveyor
+    qty_rule: conditional
+    condition_field: disposal
+    condition_value: "Conveyor"
+    qty: 1
+    description: Grit transport to container

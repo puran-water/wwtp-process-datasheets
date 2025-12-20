@@ -1,0 +1,16 @@
+# BOM Definition for Gravity Thickener Package (601-GT)
+# Defines component datasheets required for this package
+
+package_template: 601-GT
+package_name: Gravity Thickener Package
+
+components:
+  - template_id: 601-TM
+    name: Thickener Mechanism
+    qty_rule: num_thickeners
+    description: Thickener rake mechanism with drive
+
+  - template_id: 600-PP-PCP
+    name: Thickened Sludge Pump
+    qty_rule: num_thickeners + 1
+    description: Thickened sludge transfer (N duty + 1 standby)

@@ -1,0 +1,19 @@
+# BOM Definition for Pressure Filter Package (310-DMF)
+# Defines component datasheets required for this package
+
+package_template: 310-DMF
+package_name: Tertiary Filter Package
+
+components:
+  - template_id: 310-FV
+    name: Filter Vessel
+    qty_rule: num_vessels
+    description: Pressure filter vessel internals
+
+  - template_id: 600-PP-CEN
+    name: Backwash Pump
+    qty_rule: conditional
+    condition_field: bw_source
+    condition_value: "Dedicated"
+    qty: 2
+    description: Filter backwash supply (1 duty + 1 standby)

@@ -1,0 +1,493 @@
+{
+  "Preliminary Treatment": {
+    "Headworks": {
+      "Coarse Screening": {
+        "area_number": 101,
+        "process_unit_id": "SC",
+        "template_id": "101-SC",
+        "types": [
+          "Manual",
+          "Mechanical"
+        ],
+        "component_templates": ["101-SCR", "101-WC", "101-CV"]
+      },
+      "Grit Removal": {
+        "area_number": 101,
+        "process_unit_id": "GR",
+        "template_id": "101-GR",
+        "types": [
+          "Aerated",
+          "Vortex",
+          "Channel"
+        ],
+        "component_templates": ["101-GW", "101-CV", "600-PP-CEN"]
+      },
+      "Oil & Grease Removal": {
+        "area_number": 101,
+        "process_unit_id": "OG",
+        "types": [
+          "Underflow Baffle",
+          "API Separator",
+          "Lamella Plate Separator"
+        ]
+      },
+      "Fine Screening": {
+        "area_number": 101,
+        "process_unit_id": "FS",
+        "types": [
+          "Manual",
+          "Mechanical"
+        ]
+      },
+      "Vendor Packaged Headworks System": {
+        "area_number": 101,
+        "process_unit_id": "HW"
+      },
+      "Grinding/Maceration": {
+        "area_number": 101,
+        "process_unit_id": "MCR"
+      }
+    },
+    "Equalization": {
+      "Aerated Mixing": {
+        "area_number": 110,
+        "process_unit_id": "TK"
+      },
+      "Mechanical Mixing": {
+        "area_number": 110,
+        "process_unit_id": "TK"
+      },
+      "Pumped Mixing": {
+        "area_number": 110,
+        "process_unit_id": "TK"
+      }
+    },
+    "Cooling": {
+      "Direct Cooling Tower": {
+        "area_number": 120,
+        "process_unit_id": "CT"
+      },
+      "Indirect Cooling Heat Exchanger": {
+        "area_number": 120,
+        "process_unit_id": "HX"
+      }
+    }
+  },
+  "Primary Treatment": {
+    "Primary Clarification": {
+      "Gravity": {
+        "area_number": 130,
+        "process_unit_id": "CL",
+        "template_id": "130-CL",
+        "types": [
+          "Circular",
+          "Rectangular"
+        ],
+        "component_templates": ["130-CM", "600-PP-CEN"]
+      },
+    "Parallel Plate / Lamella": {
+        "area_number": 130,
+        "process_unit_id": "LC",
+        "template_id": "130-LC"
+      },
+    "DAF": {
+        "area_number": 130,
+        "process_unit_id": "DAF"
+      }
+    },
+    "Reactor – Clarifier": {
+      "Lime - Soda Softening": {
+        "area_number": 140,
+        "process_unit_id": "TK"
+      },
+      "Other": {
+        "area_number": 140,
+        "process_unit_id": "TK"
+      }
+    }
+  },
+  "Other Pre-Treatment": {
+    "Advanced Oxidation Pre-Treatment": {
+      "Fenton’s Reagent": {
+        "area_number": 150,
+        "process_unit_id": "TK"
+      },
+      "H2O2-UV": {
+        "area_number": 150,
+        "process_unit_id": "TK"
+      },
+      "O3-UV": {
+        "area_number": 150,
+        "process_unit_id": "TK"
+      },
+      "NaOCl-UV": {
+        "area_number": 150,
+        "process_unit_id": "TK"
+      }
+    }
+  },
+  "Secondary Treatment": {
+    "Anaerobic Biological Treatment": {
+      "UASB": {
+        "area_number": 201,
+        "process_unit_id": "TK"
+      },
+      "Fixed Film": {
+        "area_number": 201,
+        "process_unit_id": "TK"
+      },
+      "AnMBR": {
+        "area_number": 201,
+        "process_unit_id": "TK"
+      },
+      "Low-Rate Digester": {
+        "area_number": 201,
+        "process_unit_id": "TK"
+      },
+      "CSTR": {
+        "area_number": 201,
+        "process_unit_id": "TK"
+      }
+    },
+    "Aerobic Biological Treatment": {
+      "Anaerobic Tank": {
+        "area_number": 210,
+        "process_unit_id": "TK"
+      },
+      "Anoxic Tank": {
+        "area_number": 220,
+        "process_unit_id": "TK"
+      },
+      "Aeration Tank": {
+        "area_number": 230,
+        "process_unit_id": "AT",
+        "template_id": "230-AT",
+        "component_templates": ["230-BL", "230-DF", "600-PP-CEN"]
+      },
+      "Tricking Filter / Roughing Filter": {
+        "area_number": 260,
+        "process_unit_id": "TK"
+      },
+      "Rotating Biological Contactor": {
+        "area_number": 270,
+        "process_unit_id": "TK"
+      },
+      "SBR": {
+        "area_number": 280,
+        "process_unit_id": "TK"
+      },
+      "Secondary Clarification": {
+        "Gravity": {
+          "area_number": 240,
+          "process_unit_id": "SC",
+          "template_id": "240-SC",
+          "types": [
+            "Circular",
+            "Rectangular"
+          ],
+          "component_templates": ["240-CM", "600-PP-CEN"]
+        },
+        "Parallel Plate / Lamella": {
+          "area_number": 240,
+          "process_unit_id": "LPS"
+        },
+        "DAF": {
+          "area_number": 240,
+          "process_unit_id": "DAF"
+        },
+      "Submerged Membrane Bioreactor": {
+        "area_number": 250,
+        "process_unit_id": "TK"
+        },
+      "Crossflow Membrane Bioreactor": {
+        "area_number": 250,
+        "process_unit_id": "XMBR"
+        }
+      }
+    }
+  },
+  "Tertiary Treatment": {
+    "Tertiary Reactor Clarifier": {
+      "Lime - Soda Softening": {
+        "area_number": 301,
+        "process_unit_id": "TK"
+      },
+      "Other": {
+        "area_number": 301,
+        "process_unit_id": "TK"
+      }
+    },
+    "Tertiary Filtration": {
+      "Dual Media Filter": {
+        "area_number": 310,
+        "process_unit_id": "DMF",
+        "template_id": "310-DMF",
+        "component_templates": ["310-FV", "600-PP-CEN"]
+      },
+      "Gravity Sand Filter": {
+        "area_number": 310,
+        "process_unit_id": "TK"
+      },
+      "Disc Filter": {
+        "area_number": 310,
+        "process_unit_id": "DSC"
+      }
+    },
+    "Ultrafiltration": {
+      "Submerged": {
+        "area_number": 320,
+        "process_unit_id": "SUF"
+      },
+      "External In-Out": {
+        "area_number": 320,
+        "process_unit_id": "XUF"
+      },
+      "External Out-In": {
+        "area_number": 320,
+        "process_unit_id": "XUF"
+      }
+    },
+    "Ion Exchange": {
+      "SAC": {
+        "area_number": 330,
+        "process_unit_id": "V"
+      },
+      "WAC H+ Form": {
+        "area_number": 330,
+        "process_unit_id": "V"
+      },
+      "WAC Na+ Form": {
+        "area_number": 330,
+        "process_unit_id": "V"
+      }
+    },
+    "Degassing": {
+      "area_number": 340,
+      "process_unit_id": "V"
+    },
+    "Reverse Osmosis": {
+      "Conventional RO": {
+        "area_number": 350,
+        "process_unit_id": "RO"
+      },
+      "Closed Circuit RO": {
+        "area_number": 350,
+        "process_unit_id": "RO"
+      },
+      "DTRO": {
+        "area_number": 350,
+        "process_unit_id": "RO"
+      },
+      "STRO": {
+        "area_number": 350,
+        "process_unit_id": "RO"
+      },
+      "VSEP": {
+        "area_number": 350,
+        "process_unit_id": "RO"
+      }
+    },
+    "Electrochemical": {
+      "Electrodialysis (EDI)": {
+        "area_number": 360,
+        "process_unit_id": "EDI"
+      },
+      "Electrodialysis Reversal (EDR)": {
+        "area_number": 360,
+        "process_unit_id": "EDR"
+      }
+    },
+    "Advanced Oxidation Post-Treatment": {
+      "Fenton's Reagent": {
+        "area_number": 370,
+        "process_unit_id": "TK"
+      },
+      "H2O2-UV": {
+        "area_number": 370,
+        "process_unit_id": "TK"
+      },
+      "O3-UV": {
+        "area_number": 370,
+        "process_unit_id": "TK"
+      },
+      "NaOCl-UV": {
+        "area_number": 370,
+        "process_unit_id": "TK"
+      }
+    }
+  },
+  "Disinfection": {
+    "Chlorine": {
+      "area_number": 401,
+      "process_unit_id": "TK"
+    },
+    "Chloramine": {
+      "area_number": 401,
+      "process_unit_id": "TK"
+    },
+    "UV": {
+      "area_number": 420,
+      "process_unit_id": "UV",
+      "template_id": "420-UV",
+      "component_templates": ["420-UVR"]
+    },
+    "Ozone": {
+      "area_number": 401,
+      "process_unit_id": "OG"
+    }
+  },
+  "Brine Management": {
+    "Evaporation": {
+      "MEE": {
+        "area_number": 501,
+        "process_unit_id": "MEE"
+      },
+      "MVR": {
+        "area_number": 501,
+        "process_unit_id": "MVR"
+      },
+      "Evaporation Ponds": {
+        "area_number": 501,
+        "process_unit_id": "TK"
+      }
+    },
+    "Crystallization": {
+      "Forced Circulation": {
+        "area_number": 510,
+        "process_unit_id": "FCC"
+      },
+      "Seeded Slurry": {
+        "area_number": 510,
+        "process_unit_id": "SSC"
+      }
+    },
+    "Purge Stream": {
+      "ATFD": {
+        "area_number": 520,
+        "process_unit_id": "ATFD"
+      },
+      "Drying Pond": {
+        "area_number": 520,
+        "process_unit_id": "TK"
+      }
+    }
+  },
+  "Sludge Handling": {
+    "Thickening": {
+      "Gravity Thickener": {
+        "area_number": 601,
+        "process_unit_id": "GT",
+        "template_id": "601-GT",
+        "component_templates": ["601-TM", "600-PP-PCP"]
+      },
+      "DAF": {
+        "area_number": 601,
+        "process_unit_id": "DAF"
+      }
+    },
+    "Dewatering": {
+      "Filter Press": {
+        "area_number": 610,
+        "process_unit_id": "FP"
+      },
+      "Belt Filter Press": {
+        "area_number": 610,
+        "process_unit_id": "BFP"
+      },
+      "Volute Press": {
+        "area_number": 610,
+        "process_unit_id": "VP"
+      },
+      "Centrifuge": {
+        "area_number": 610,
+        "process_unit_id": "DC"
+      }
+    },
+    "Drying": {
+      "Rotary Dryer": {
+        "area_number": 620,
+        "process_unit_id": "RD"
+      }
+    },
+    "Anaerobic Sludge Digestion": {
+      "Anaerobic Digester": {
+        "area_number": 640,
+        "process_unit_id": "TK",
+        "types": [
+          "Side Stream Ammonia Removal",
+          "Phosphorus Recovery",
+          "Nitrogen Recovery"
+        ]
+      }
+    },
+    "Aerobic Sludge Digestion": {
+      "area_number": 650,
+      "process_unit_id": "TK"
+    }
+  },
+  "Biogas Treatment": {
+    "Moisture Removal": {
+      "Condenser": {
+        "area_number": 701,
+        "process_unit_id": "CND"
+      },
+      "Chiller with Compressor": {
+        "area_number": 701,
+        "process_unit_id": "CH"
+      },
+      "Absorption Chiller (Fueled by Waste Heat)": {
+        "area_number": 701,
+        "process_unit_id": "ACH"
+      }
+    },
+    "H2S Removal": {
+      "Iron Media": {
+        "area_number": 710,
+        "process_unit_id": "V"
+      },
+      "Biological": {
+        "area_number": 710,
+        "process_unit_id": "TK"
+      }
+    },
+    "Siloxane Removal": {
+      "Activated Carbon": {
+        "area_number": 720,
+        "process_unit_id": "V"
+      }
+    },
+    "Gas Compression": {
+      "area_number": 730,
+      "process_unit_id": "C"
+    },
+    "CO2 Removal": {
+      "Membrane": {
+        "area_number": 740,
+        "process_unit_id": "CRM"
+      },
+      "PSA": {
+        "area_number": 740,
+        "process_unit_id": "PSA"
+      },
+      "Pressurized Water Scrubbing": {
+        "area_number": 740,
+        "process_unit_id": "WS"
+      },
+      "Amine Scrubbing": {
+        "area_number": 740,
+        "process_unit_id": "AS"
+      }
+    },
+    "Gas Liquification": {
+      "CO2 Liquifaction": {
+        "area_number": 750,
+        "process_unit_id": "CO2L"
+
+      },
+      "CH4 Liquifaction": {
+        "area_number": 750,
+        "process_unit_id": "CH4L"
+      }
+    }
+  }
+}

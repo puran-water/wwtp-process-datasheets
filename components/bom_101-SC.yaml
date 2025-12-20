@@ -1,0 +1,27 @@
+# BOM Definition for Screen Package (101-SC)
+# Defines component datasheets required for this package
+
+package_template: 101-SC
+package_name: Screen Package
+
+components:
+  - template_id: 101-SCR
+    name: Screen
+    qty_rule: num_screens
+    description: Primary screening equipment per package spec
+
+  - template_id: 101-WC
+    name: Washer-Compactor
+    qty_rule: conditional
+    condition_field: washer
+    condition_value: "Yes"
+    qty: 1
+    description: Screenings processing (if included)
+
+  - template_id: 101-CV
+    name: Screw Conveyor
+    qty_rule: conditional
+    condition_field: disposal
+    condition_value: "Conveyor"
+    qty: 1
+    description: Screenings transport to container

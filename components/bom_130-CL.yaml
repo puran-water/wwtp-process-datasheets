@@ -1,0 +1,16 @@
+# BOM Definition for Primary Clarifier Package (130-CL)
+# Defines component datasheets required for this package
+
+package_template: 130-CL
+package_name: Primary Clarifier Package
+
+components:
+  - template_id: 130-CM
+    name: Clarifier Mechanism
+    qty_rule: num_clarifiers
+    description: Primary clarifier scraper mechanism with drive
+
+  - template_id: 600-PP-PCP
+    name: Primary Sludge Pump
+    qty_rule: num_clarifiers + 1
+    description: Primary sludge transfer (N duty + 1 standby)

@@ -1,0 +1,32 @@
+# BOM Definition for Aeration Tank Package (230-AT)
+# Defines component datasheets required for this package
+
+package_template: 230-AT
+package_name: Aeration Tank Package
+
+components:
+  - template_id: 230-BL
+    name: Blower Package
+    qty_rule: num_blowers
+    description: Aeration air supply blowers
+
+  - template_id: 230-DF
+    name: Diffuser Grid
+    qty_rule: num_basins
+    description: Fine bubble diffuser grids (one per basin)
+
+  - template_id: 600-PP-CEN
+    name: RAS Pump
+    qty_rule: conditional
+    condition_field: ras_pump
+    condition_value: "> 0"
+    qty_rule_value: num_basins + 1
+    description: Return activated sludge pumping
+
+  - template_id: 600-PP-PCP
+    name: WAS Pump
+    qty_rule: conditional
+    condition_field: was_pump
+    condition_value: "> 0"
+    qty: 2
+    description: Waste activated sludge pumping (1 duty + 1 standby)

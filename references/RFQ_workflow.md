@@ -52,12 +52,17 @@ Minimum package for credible pricing:
 6. **Performance requirements**
    - Target cut size / effluent quality, turndown, redundancy philosophy
 
-## Step 1: Edit Markdown Source
+## Step 1: Populate All Data in Markdown
 
-For new templates or modifications to existing ones, edit the markdown files directly:
+**All project-specific data must be entered in markdown before Excel generation.** Edit the markdown files to fill in:
+
+- Document control (Project, Client, Equipment Tag, etc.)
+- Design data (flows, loadings, dimensions, targets)
+- Materials of construction
+- Motor specifications
 
 ```bash
-# Edit a template
+# Edit a template with project-specific values
 vim templates/101-GR.md
 ```
 
@@ -136,14 +141,15 @@ Excel files are generated in `assets/` with:
 - Data validation dropdowns
 - Numbered rows for reference
 
-## Step 4: Fill Project-Specific Data
+## Step 4: Add Approval Signatures (Excel Only)
 
-Open the generated Excel file and complete:
-- Document control (Project, Client, Equipment Tag, etc.)
-- Project-specific values in data tables
-- Any remarks or special requirements
+The generated Excel file is pre-populated with all data from markdown. Only these fields should be entered in Excel:
 
-**Note:** For template changes (adding fields, changing options), edit the markdown source and regenerate. Only fill in project-specific values in Excel.
+- **Checked By (CHK BY)** – Reviewer signature/initials
+- **Approved By (APP BY)** – Approver signature/initials
+- **Dates** in approval block
+
+**Important:** All design data (flows, dimensions, materials, etc.) must be entered in markdown (Step 1), not in Excel. If you need to change any technical data, edit the markdown source and regenerate the Excel file.
 
 ## Step 5: Run Completeness Check
 
@@ -208,7 +214,7 @@ git commit -m "Update grit removal flow requirements"
 - **Controls scope ambiguity**
   - Fix: specify whether vendor supplies PLC/HMI, I/O list expectations, and comms protocol.
 - **Editing Excel instead of markdown**
-  - Fix: Always edit templates in `templates/`, then regenerate Excel. Only fill project-specific values in Excel.
+  - Fix: ALL data must be entered in markdown templates. Excel is only for approval signatures (CHK BY, APP BY). If you need to change any data, edit the markdown source and regenerate Excel.
 
 ## Quick Reference
 

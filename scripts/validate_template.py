@@ -8,6 +8,7 @@ Validates markdown datasheet templates for:
 - Table column structure
 - Field type validity
 - Dropdown options format (JSON arrays)
+- field_id uniqueness across entire template
 
 Usage:
     python scripts/validate_template.py templates/101-GR.md
@@ -37,6 +38,7 @@ REQUIRED_FRONTMATTER = {
 
 OPTIONAL_FRONTMATTER = {
     'category': str,
+    'has_electrical': bool,
 }
 
 REQUIRED_SECTIONS = [
@@ -203,6 +205,143 @@ def validate_field_types(table_text: str, section_name: str,
     return errors
 
 
+def extract_field_ids(table_text: str, section_name: str, base_line: int) -> list[tuple[str, str, int]]:
+    """Extract field_ids from a table. Returns list of (field_id, section_name, line_number)."""
+    field_ids = []
+    lines = [line for line in table_text.strip().split('\n') if line.strip()]
+
+    if len(lines) < 3:
+        return field_ids
+
+    # Parse data rows (skip header and separator)
+    for i, line in enumerate(lines[2:], 3):
+        cells = [c.strip() for c in line.split('|')[1:-1] if line.startswith('|')]
+        if len(cells) >= 2:
+            field_id = cells[1].strip()  # field_id is in column 2 (index 1)
+            if field_id:
+                field_ids.append((field_id, section_name, base_line + i))
+
+    return field_ids
+
+
+def validate_field_id_uniqueness(sections: dict[str, tuple[int, str]]) -> list[ValidationError]:
+    """Validate that all field_ids are unique across the entire template."""
+    errors = []
+    all_field_ids = []  # List of (field_id, section_name, line_number)
+
+    # Collect field_ids from all relevant sections
+    for section_name, (line_num, section_content) in sections.items():
+        if section_name not in ['Operating / Design Data', 'Driver / Motor Data', 'Materials', 'Electrical Data']:
+            continue
+
+        # Find table in section
+        table_match = re.search(r'(\|.+\|[\s\S]*?)(?=\n\n|\n##|\Z)', section_content)
+        if not table_match:
+            continue
+
+        table_text = table_match.group(1)
+        all_field_ids.extend(extract_field_ids(table_text, section_name, line_num))
+
+    # Check for duplicates
+    seen = {}  # field_id -> (section_name, line_number)
+    for field_id, section_name, line_num in all_field_ids:
+        if field_id in seen:
+            orig_section, orig_line = seen[field_id]
+            errors.append(ValidationError('ERROR',
+                f'Duplicate field_id "{field_id}" (first in {orig_section} line {orig_line}, '
+                f'also in {section_name} line {line_num}). Use section prefix (e.g., op.{field_id} / mat.{field_id})',
+                line_num))
+        else:
+            seen[field_id] = (section_name, line_num)
+
+    return errors
+
+
+def get_all_field_ids(sections: dict[str, tuple[int, str]]) -> set[str]:
+    """Extract all field_ids from a template's sections."""
+    field_ids = set()
+    for section_name, (line_num, section_content) in sections.items():
+        if section_name not in ['Operating / Design Data', 'Driver / Motor Data', 'Materials', 'Electrical Data']:
+            continue
+        table_match = re.search(r'(\|.+\|[\s\S]*?)(?=\n\n|\n##|\Z)', section_content)
+        if table_match:
+            for field_id, _, _ in extract_field_ids(table_match.group(1), section_name, line_num):
+                field_ids.add(field_id)
+    return field_ids
+
+
+def extract_field_refs_from_expr(expr: str) -> list[str]:
+    """Extract field name references from a qty_rule expression."""
+    if not expr or expr in ('fixed', 'conditional'):
+        return []
+    # Tokenize expression and extract non-numeric, non-operator tokens
+    tokens = re.split(r'\s*[+\-*/]\s*', expr.strip())
+    refs = []
+    for token in tokens:
+        token = token.strip()
+        if token and not token.isdigit():
+            refs.append(token)
+    return refs
+
+
+def validate_bom_references(template_id: str, field_ids: set[str],
+                           components_dir: Path) -> list[ValidationError]:
+    """Validate BOM definition references against template field_ids."""
+    errors = []
+    bom_file = components_dir / f'bom_{template_id}.yaml'
+
+    if not bom_file.exists():
+        # No BOM file is not an error - many templates don't have components
+        return errors
+
+    try:
+        with open(bom_file, 'r') as f:
+            bom_data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        errors.append(ValidationError('ERROR', f'Invalid BOM YAML: {e}'))
+        return errors
+
+    if not bom_data or 'components' not in bom_data:
+        return errors
+
+    for i, component in enumerate(bom_data.get('components', []), 1):
+        comp_name = component.get('name', f'component #{i}')
+
+        # Check qty_rule field references
+        qty_rule = component.get('qty_rule', 'fixed')
+        for ref in extract_field_refs_from_expr(qty_rule):
+            if ref not in field_ids:
+                errors.append(ValidationError('ERROR',
+                    f'BOM "{comp_name}": qty_rule references unknown field "{ref}"'))
+
+        # Check condition_field for conditional rules
+        if qty_rule == 'conditional':
+            cond_field = component.get('condition_field', '')
+            cond_value = component.get('condition_value', '')
+
+            # Validate that conditional rules have required fields
+            if not cond_field:
+                errors.append(ValidationError('ERROR',
+                    f'BOM "{comp_name}": conditional qty_rule requires condition_field'))
+            elif cond_field not in field_ids:
+                errors.append(ValidationError('ERROR',
+                    f'BOM "{comp_name}": condition_field references unknown field "{cond_field}"'))
+
+            if not cond_value:
+                errors.append(ValidationError('ERROR',
+                    f'BOM "{comp_name}": conditional qty_rule requires condition_value'))
+
+            # Check qty_rule_value if present
+            qty_rule_value = component.get('qty_rule_value')
+            if qty_rule_value:
+                for ref in extract_field_refs_from_expr(str(qty_rule_value)):
+                    if ref not in field_ids:
+                        errors.append(ValidationError('ERROR',
+                            f'BOM "{comp_name}": qty_rule_value references unknown field "{ref}"'))
+
+    return errors
+
+
 def validate_template(filepath: Path) -> tuple[bool, list[ValidationError]]:
     """Validate a markdown template file."""
     errors = []
@@ -257,6 +396,16 @@ def validate_template(filepath: Path) -> tuple[bool, list[ValidationError]]:
         elif section_name == 'Materials':
             errors.extend(validate_table_structure(
                 table_text, MATERIALS_TABLE_COLUMNS, section_name, line_num))
+
+    # Validate field_id uniqueness across entire template
+    errors.extend(validate_field_id_uniqueness(sections))
+
+    # Validate BOM references if BOM file exists
+    if frontmatter.get('template_id'):
+        field_ids = get_all_field_ids(sections)
+        components_dir = filepath.parent.parent / 'components'
+        errors.extend(validate_bom_references(
+            frontmatter['template_id'], field_ids, components_dir))
 
     # Determine pass/fail
     has_errors = any(e.severity == 'ERROR' for e in errors)
