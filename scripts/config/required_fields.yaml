@@ -1,0 +1,184 @@
+# WWTP Datasheet Required Fields Configuration
+# Used by validate_datasheet.py for completeness checking
+#
+# Format:
+#   template_prefix:
+#     - field_name: "Label text to search for"
+#       row_hint: optional row number (for faster lookup)
+#       severity: REQ (required) | OPT (optional) | INFO (informational)
+
+# Common fields required across all templates
+common:
+  - field_name: "Design Average Flow"
+    severity: REQ
+  - field_name: "Design Peak"
+    severity: REQ
+  - field_name: "Number of"
+    severity: REQ
+  - field_name: "Redundancy"
+    severity: REQ
+
+# 101-GR: Grit Removal Package
+101-GR:
+  - field_name: "Target Grit Cut Size"
+    severity: REQ
+  - field_name: "Required Removal Efficiency"
+    severity: REQ
+  - field_name: "Technology Type"
+    severity: REQ
+  - field_name: "Grit Disposal"
+    severity: REQ
+  - field_name: "Allowable Headloss"
+    severity: REQ
+  - field_name: "Upstream Screen"
+    severity: OPT
+  - field_name: "Grit Loading"
+    severity: OPT
+  - field_name: "Specific Gravity"
+    severity: OPT
+
+# 101-SC: Screening Package
+101-SC:
+  - field_name: "Screen Type"
+    severity: REQ
+  - field_name: "Opening Size"
+    severity: REQ
+  - field_name: "Cleaning Mechanism"
+    severity: REQ
+  - field_name: "Screenings Disposal"
+    severity: REQ
+  - field_name: "Channel Width"
+    severity: REQ
+  - field_name: "Approach Velocity"
+    severity: OPT
+  - field_name: "Headloss"
+    severity: OPT
+
+# 130-CL: Primary Clarifier
+130-CL:
+  - field_name: "Clarifier Geometry"
+    severity: REQ
+  - field_name: "Diameter"
+    severity: REQ
+  - field_name: "Sidewater Depth"
+    severity: REQ
+  - field_name: "Surface Loading Rate"
+    severity: REQ
+  - field_name: "Detention Time"
+    severity: REQ
+  - field_name: "Weir Loading"
+    severity: OPT
+  - field_name: "Sludge Removal"
+    severity: OPT
+
+# 130-LC: Lamella Clarifier
+130-LC:
+  - field_name: "Surface Loading Rate"
+    severity: REQ
+  - field_name: "Plate Spacing"
+    severity: REQ
+  - field_name: "Number of Plates"
+    severity: OPT
+  - field_name: "Chemical Addition"
+    severity: OPT
+  - field_name: "Effluent Quality"
+    severity: REQ
+
+# 230-AT: Aeration Tank
+230-AT:
+  - field_name: "Basin Volume"
+    severity: REQ
+  - field_name: "Basin Configuration"
+    severity: REQ
+  - field_name: "DO Setpoint"
+    severity: REQ
+  - field_name: "Aeration Technology"
+    severity: REQ
+  - field_name: "Blower Type"
+    severity: REQ
+  - field_name: "Air Flow"
+    severity: REQ
+  - field_name: "MLSS"
+    severity: OPT
+  - field_name: "SRT"
+    severity: OPT
+  - field_name: "F/M"
+    severity: OPT
+
+# 240-SC: Secondary Clarifier
+240-SC:
+  - field_name: "Clarifier Type"
+    severity: REQ
+  - field_name: "Diameter"
+    severity: REQ
+  - field_name: "Sidewater Depth"
+    severity: REQ
+  - field_name: "Surface Loading"
+    severity: REQ
+  - field_name: "Solids Loading"
+    severity: REQ
+  - field_name: "RAS"
+    severity: OPT
+  - field_name: "Sludge Blanket"
+    severity: OPT
+
+# 310-DMF: Pressure Filter (Dual Media Filter)
+310-DMF:
+  - field_name: "Filter Type"
+    severity: REQ
+  - field_name: "Loading Rate"
+    severity: REQ
+  - field_name: "Effluent Quality"
+    severity: REQ
+  - field_name: "Backwash"
+    severity: REQ
+  - field_name: "Media Type"
+    severity: OPT
+  - field_name: "Vessel Material"
+    severity: OPT
+  - field_name: "Air Scour"
+    severity: OPT
+
+# 420-UV: UV Disinfection
+420-UV:
+  - field_name: "Channel Configuration"
+    severity: REQ
+  - field_name: "Lamp Type"
+    severity: REQ
+  - field_name: "UV Dose"
+    severity: REQ
+  - field_name: "UVT"
+    severity: REQ
+  - field_name: "Log Reduction"
+    severity: REQ
+  - field_name: "Cleaning System"
+    severity: OPT
+  - field_name: "Lamp Life"
+    severity: OPT
+
+# 510-GT: Gravity Thickener
+510-GT:
+  - field_name: "Sludge Type"
+    severity: REQ
+  - field_name: "Thickener Configuration"
+    severity: REQ
+  - field_name: "Solids Loading"
+    severity: REQ
+  - field_name: "Feed Concentration"
+    severity: REQ
+  - field_name: "Target Concentration"
+    severity: REQ
+  - field_name: "Diameter"
+    severity: OPT
+  - field_name: "Sidewater Depth"
+    severity: OPT
+
+# Validation rules (for physics checks - future enhancement)
+validation_rules:
+  - name: "HRT consistency"
+    formula: "volume / flow"
+    applies_to: ["130-CL", "240-SC", "510-GT"]
+
+  - name: "Surface loading check"
+    formula: "flow / area"
+    applies_to: ["130-CL", "130-LC", "240-SC", "310-DMF"]
