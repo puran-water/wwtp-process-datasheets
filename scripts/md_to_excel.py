@@ -28,12 +28,16 @@ except ImportError:
 
 # Import centralized styles
 from excel_styles import (
-    FONT_TITLE, FONT_SECTION, FONT_LABEL, FONT_VALUE, FONT_SMALL,
-    BORDER_ALL, NO_FILL, ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT,
+    FONT_TITLE, FONT_SECTION, FONT_LABEL, FONT_VALUE, FONT_VALUE_BOLD,
+    FONT_SMALL, FONT_TINY,
+    BORDER_ALL, NO_FILL, DOT_BORDER, THIN_BORDER,
+    ALIGN_LEFT, ALIGN_CENTER, ALIGN_RIGHT,
     COLUMN_WIDTHS, ROW_HEIGHT,
     apply_print_layout, apply_column_widths, apply_row_heights,
-    style_cell, apply_borders_to_range
+    style_cell, apply_borders_to_range, apply_professional_borders,
+    apply_section_borders
 )
+from openpyxl.styles import Border
 
 
 # =============================================================================
@@ -181,83 +185,165 @@ def build_workbook(template: dict) -> Workbook:
 
     # === TITLE BLOCK (Rows 1-2) ===
     ws.merge_cells(start_row=1, start_column=1, end_row=2, end_column=10)
-    title_cell = ws.cell(row=1, column=1, value=f"{title} DATASHEET")
+    title_cell = ws.cell(row=1, column=1, value="TECHNICAL SPECIFICATION DATA SHEET")
     style_cell(title_cell, 'title')
     apply_borders_to_range(ws, 1, 2, 1, 10)
     row = 3
 
-    # === SERVICE INFO + DOCUMENT CONTROL (Rows 3-8) ===
+    # === PROFESSIONAL HEADER BLOCK (Rows 3-7) ===
     service_info = sections.get('Service Information', [])
     doc_control = sections.get('Document Control', [])
 
-    service_labels = ['Service:', 'Location:', 'Manufacturer:', 'Model:', 'P&ID No:', '']
-    service_values = ['', '', '', '', '', '']
+    # Extract document control values
+    project_name = ''
+    project_no = ''
+    equipment_tag = ''
+    doc_no = ''
+    revision = ''
+    doc_date = ''
+
+    for item in doc_control:
+        field = item.get('Field', '')
+        value = item.get('Value', '')
+        if 'Project' in field and 'No' not in field:
+            project_name = value
+        elif 'Tag' in field:
+            equipment_tag = value
+        elif 'Document' in field or 'Doc' in field:
+            doc_no = value
+        elif 'Revision' in field or 'Rev' in field:
+            revision = value
+        elif 'Date' in field:
+            doc_date = value
 
     # Extract service info values
+    service_type = metadata.get('service', '')
+    p_and_id = ''
+
     for item in service_info:
         field = item.get('Field', '')
         value = item.get('Value', '')
         if 'Service' in field:
-            service_values[0] = value
-        elif 'Location' in field:
-            service_values[1] = value
-        elif 'Manufacturer' in field:
-            service_values[2] = value
-        elif 'Model' in field:
-            service_values[3] = value
+            service_type = value or service_type
         elif 'P&ID' in field:
-            service_values[4] = value
+            p_and_id = value
 
-    # Use service from metadata as fallback
-    if not service_values[0]:
-        service_values[0] = metadata.get('service', '')
+    # Helper for header row borders
+    def header_left_border():
+        return Border(left=THIN_BORDER, top=THIN_BORDER, bottom=THIN_BORDER)
 
-    doc_labels = ['Project:', 'Client:', 'Equipment Tag:', 'Document No:', 'Revision:', 'Date:']
-    doc_values = ['', '', '', '', '', '']
+    def header_right_border():
+        return Border(right=THIN_BORDER, top=THIN_BORDER, bottom=THIN_BORDER)
 
-    # Extract document control values
-    for item in doc_control:
-        field = item.get('Field', '')
-        value = item.get('Value', '')
-        if 'Project' in field:
-            doc_values[0] = value
-        elif 'Client' in field:
-            doc_values[1] = value
-        elif 'Tag' in field:
-            doc_values[2] = value
-        elif 'Document' in field or 'Doc' in field:
-            doc_values[3] = value
-        elif 'Revision' in field or 'Rev' in field:
-            doc_values[4] = value
-        elif 'Date' in field:
-            doc_values[5] = value
+    def header_middle_border():
+        return Border(top=THIN_BORDER, bottom=THIN_BORDER)
 
-    for i in range(6):
-        r = row + i
+    # --- Row 3: Project: [value] | DES BY: | SPEC NO: ---
+    # Label A-B merged
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=2)
+    ws.cell(row=3, column=1, value='Project:').font = FONT_LABEL
+    ws.cell(row=3, column=1).border = header_left_border()
+    ws.cell(row=3, column=2).border = header_right_border()
 
-        # Left side: Service info (columns A-F)
-        ws.cell(row=r, column=1).font = FONT_SMALL
-        ws.cell(row=r, column=1).border = BORDER_ALL
+    # Value C-F merged
+    ws.merge_cells(start_row=3, start_column=3, end_row=3, end_column=6)
+    ws.cell(row=3, column=3, value=project_name).font = FONT_VALUE
+    ws.cell(row=3, column=3).border = header_left_border()
+    for col in range(4, 6):
+        ws.cell(row=3, column=col).border = header_middle_border()
+    ws.cell(row=3, column=6).border = header_right_border()
 
-        ws.cell(row=r, column=2, value=service_labels[i]).font = FONT_LABEL
-        ws.cell(row=r, column=2).border = BORDER_ALL
+    # DES BY: G, value H
+    ws.cell(row=3, column=7, value='DES BY:').font = FONT_TINY
+    ws.cell(row=3, column=7).border = BORDER_ALL
+    ws.cell(row=3, column=8).font = FONT_VALUE
+    ws.cell(row=3, column=8).border = BORDER_ALL
 
-        ws.merge_cells(start_row=r, start_column=3, end_row=r, end_column=6)
-        ws.cell(row=r, column=3, value=service_values[i]).font = FONT_VALUE
-        for col in range(3, 7):
-            ws.cell(row=r, column=col).border = BORDER_ALL
+    # SPEC NO: I, value J
+    ws.cell(row=3, column=9, value='SPEC NO:').font = FONT_TINY
+    ws.cell(row=3, column=9).border = BORDER_ALL
+    ws.cell(row=3, column=10, value=doc_no).font = FONT_VALUE
+    ws.cell(row=3, column=10).border = BORDER_ALL
 
-        # Right side: Document control (columns G-J)
-        ws.cell(row=r, column=7, value=doc_labels[i]).font = FONT_SMALL
-        ws.cell(row=r, column=7).alignment = ALIGN_RIGHT
-        ws.cell(row=r, column=7).border = BORDER_ALL
+    # --- Row 4: Project No. [value] | CHK BY: | REV: ---
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=2)
+    ws.cell(row=4, column=1, value='Project No.').font = FONT_LABEL
+    ws.cell(row=4, column=1).border = BORDER_ALL
+    ws.cell(row=4, column=2).border = BORDER_ALL
 
-        ws.merge_cells(start_row=r, start_column=8, end_row=r, end_column=10)
-        ws.cell(row=r, column=8, value=doc_values[i]).font = FONT_VALUE
-        for col in range(8, 11):
-            ws.cell(row=r, column=col).border = BORDER_ALL
+    ws.merge_cells(start_row=4, start_column=3, end_row=4, end_column=6)
+    ws.cell(row=4, column=3, value=project_no).font = FONT_VALUE
+    ws.cell(row=4, column=3).border = header_left_border()
+    for col in range(4, 6):
+        ws.cell(row=4, column=col).border = header_middle_border()
+    ws.cell(row=4, column=6).border = header_right_border()
 
-    row += 6
+    ws.cell(row=4, column=7, value='CHK BY:').font = FONT_TINY
+    ws.cell(row=4, column=7).border = BORDER_ALL
+    ws.cell(row=4, column=8).font = FONT_VALUE
+    ws.cell(row=4, column=8).border = BORDER_ALL
+
+    ws.cell(row=4, column=9, value='REV:').font = FONT_TINY
+    ws.cell(row=4, column=9).border = BORDER_ALL
+    ws.cell(row=4, column=10, value=revision).font = FONT_VALUE
+    ws.cell(row=4, column=10).border = BORDER_ALL
+
+    # --- Row 5: Tag No. [value] | APP BY: | DATE: ---
+    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=2)
+    ws.cell(row=5, column=1, value='Tag No.').font = FONT_LABEL
+    ws.cell(row=5, column=1).border = header_left_border()
+    ws.cell(row=5, column=2).border = header_right_border()
+
+    ws.merge_cells(start_row=5, start_column=3, end_row=5, end_column=6)
+    ws.cell(row=5, column=3, value=equipment_tag).font = FONT_VALUE
+    ws.cell(row=5, column=3).border = header_left_border()
+    for col in range(4, 6):
+        ws.cell(row=5, column=col).border = header_middle_border()
+    ws.cell(row=5, column=6).border = header_right_border()
+
+    ws.cell(row=5, column=7, value='APP BY:').font = FONT_TINY
+    ws.cell(row=5, column=7).border = BORDER_ALL
+    ws.cell(row=5, column=8).font = FONT_VALUE
+    ws.cell(row=5, column=8).border = BORDER_ALL
+
+    ws.cell(row=5, column=9, value='DATE:').font = FONT_TINY
+    ws.cell(row=5, column=9).border = BORDER_ALL
+    ws.cell(row=5, column=10, value=doc_date).font = FONT_VALUE
+    ws.cell(row=5, column=10).border = BORDER_ALL
+
+    # --- Row 6: Application: [value] | (empty right side) ---
+    ws.merge_cells(start_row=6, start_column=1, end_row=6, end_column=2)
+    ws.cell(row=6, column=1, value='Application:').font = FONT_LABEL
+    ws.cell(row=6, column=1).border = header_left_border()
+    ws.cell(row=6, column=2).border = header_right_border()
+
+    ws.merge_cells(start_row=6, start_column=3, end_row=6, end_column=6)
+    ws.cell(row=6, column=3, value=service_type).font = FONT_LABEL
+    ws.cell(row=6, column=3).border = header_left_border()
+    for col in range(4, 6):
+        ws.cell(row=6, column=col).border = header_middle_border()
+    ws.cell(row=6, column=6).border = header_right_border()
+
+    for col in range(7, 11):
+        ws.cell(row=6, column=col).border = BORDER_ALL
+
+    # --- Row 7: P&ID No: [value] | (empty right side) ---
+    ws.merge_cells(start_row=7, start_column=1, end_row=7, end_column=2)
+    ws.cell(row=7, column=1, value='P&ID No:').font = FONT_LABEL
+    ws.cell(row=7, column=1).border = header_left_border()
+    ws.cell(row=7, column=2).border = header_right_border()
+
+    ws.merge_cells(start_row=7, start_column=3, end_row=7, end_column=6)
+    ws.cell(row=7, column=3, value=p_and_id).font = FONT_VALUE
+    ws.cell(row=7, column=3).border = header_left_border()
+    for col in range(4, 6):
+        ws.cell(row=7, column=col).border = header_middle_border()
+    ws.cell(row=7, column=6).border = header_right_border()
+
+    for col in range(7, 11):
+        ws.cell(row=7, column=col).border = BORDER_ALL
+
+    row = 8
 
     # === OPERATING / DESIGN DATA ===
     operating_data = sections.get('Operating / Design Data', [])
@@ -275,13 +361,16 @@ def build_workbook(template: dict) -> Workbook:
     if has_motor and motor_data:
         row = write_data_section(ws, row, 'DRIVER / MOTOR DATA', motor_data, validations)
 
-    # === REMARKS ===
+    # === REMARKS / NOTES ===
     remarks = sections.get('Remarks', [])
     row = write_remarks_section(ws, row, remarks)
 
     # === REVISION HISTORY ===
     rev_history = sections.get('Revision History', [])
     row = write_revision_section(ws, row, rev_history)
+
+    # === FOOTER SECTION ===
+    row = write_footer_section(ws, row, equipment_tag)
 
     # Add data validations
     for validation in validations:
@@ -295,8 +384,9 @@ def build_workbook(template: dict) -> Workbook:
 
 def write_data_section(ws, start_row: int, section_title: str, data: list[dict],
                        validations: list) -> int:
-    """Write a data section (Operating Data or Motor Data)."""
+    """Write a data section (Operating Data or Motor Data) with professional borders."""
     row = start_row
+    section_start = start_row
 
     # Section header
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=10)
@@ -305,8 +395,12 @@ def write_data_section(ws, start_row: int, section_title: str, data: list[dict],
     apply_borders_to_range(ws, row, row, 1, 10)
     row += 1
 
+    # Count valid data rows for border calculation
+    valid_items = [item for item in data
+                   if item.get('#', '') != '#' and item.get('Field', '') != 'Field']
+
     # Data rows
-    for item in data:
+    for idx, item in enumerate(valid_items):
         row_num = item.get('#', '')
         field_label = item.get('Field', '')
         value = item.get('Value', '')
@@ -314,28 +408,39 @@ def write_data_section(ws, start_row: int, section_title: str, data: list[dict],
         field_type = item.get('Type', 'text')
         options = item.get('Options', '')
 
-        # Skip header-like rows
-        if row_num == '#' or field_label == 'Field':
-            continue
+        is_last_row = (idx == len(valid_items) - 1)
+
+        # Determine border style: solid on outer edges, dotted internal
+        left_border = THIN_BORDER
+        right_border = THIN_BORDER
+        bottom_border = THIN_BORDER if is_last_row else DOT_BORDER
 
         # Row number (column A)
         ws.cell(row=row, column=1, value=row_num).font = FONT_SMALL
         ws.cell(row=row, column=1).alignment = ALIGN_CENTER
-        ws.cell(row=row, column=1).border = BORDER_ALL
+        ws.cell(row=row, column=1).border = Border(
+            left=left_border, right=DOT_BORDER, bottom=bottom_border
+        )
 
         # Label (columns B-D)
         ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=4)
         ws.cell(row=row, column=2, value=field_label).font = FONT_LABEL
         ws.cell(row=row, column=2).alignment = ALIGN_LEFT
         for col in range(2, 5):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+            r_border = DOT_BORDER if col < 4 else DOT_BORDER
+            ws.cell(row=row, column=col).border = Border(
+                right=r_border, bottom=bottom_border
+            )
 
         # Value (columns E-H)
         ws.merge_cells(start_row=row, start_column=5, end_row=row, end_column=8)
         ws.cell(row=row, column=5, value=value).font = FONT_VALUE
         ws.cell(row=row, column=5).alignment = ALIGN_LEFT
         for col in range(5, 9):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+            r_border = DOT_BORDER if col < 8 else DOT_BORDER
+            ws.cell(row=row, column=col).border = Border(
+                right=r_border, bottom=bottom_border
+            )
 
         # Add dropdown validation if needed
         if field_type == 'dropdown' and options:
@@ -351,11 +456,15 @@ def write_data_section(ws, start_row: int, section_title: str, data: list[dict],
         # Units (column I)
         ws.cell(row=row, column=9, value=units).font = FONT_SMALL
         ws.cell(row=row, column=9).alignment = ALIGN_LEFT
-        ws.cell(row=row, column=9).border = BORDER_ALL
+        ws.cell(row=row, column=9).border = Border(
+            right=DOT_BORDER, bottom=bottom_border
+        )
 
         # Notes (column J)
         ws.cell(row=row, column=10).font = FONT_SMALL
-        ws.cell(row=row, column=10).border = BORDER_ALL
+        ws.cell(row=row, column=10).border = Border(
+            right=right_border, bottom=bottom_border
+        )
 
         row += 1
 
@@ -363,7 +472,7 @@ def write_data_section(ws, start_row: int, section_title: str, data: list[dict],
 
 
 def write_materials_section(ws, start_row: int, materials: list[dict]) -> int:
-    """Write the materials section."""
+    """Write the materials section with professional borders."""
     row = start_row
 
     # Section header
@@ -373,47 +482,64 @@ def write_materials_section(ws, start_row: int, materials: list[dict]) -> int:
     apply_borders_to_range(ws, row, row, 1, 10)
     row += 1
 
-    # Column headers
+    # Column headers with solid bottom border
     ws.cell(row=row, column=1).font = FONT_SMALL
-    ws.cell(row=row, column=1).border = BORDER_ALL
+    ws.cell(row=row, column=1).border = Border(
+        left=THIN_BORDER, right=DOT_BORDER, bottom=THIN_BORDER
+    )
 
     ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=5)
     ws.cell(row=row, column=2, value='Component').font = FONT_LABEL
     for col in range(2, 6):
-        ws.cell(row=row, column=col).border = BORDER_ALL
+        ws.cell(row=row, column=col).border = Border(
+            right=DOT_BORDER, bottom=THIN_BORDER
+        )
 
     ws.merge_cells(start_row=row, start_column=6, end_row=row, end_column=10)
     ws.cell(row=row, column=6, value='Material').font = FONT_LABEL
     for col in range(6, 11):
-        ws.cell(row=row, column=col).border = BORDER_ALL
+        r_border = THIN_BORDER if col == 10 else DOT_BORDER
+        ws.cell(row=row, column=col).border = Border(
+            right=r_border, bottom=THIN_BORDER
+        )
     row += 1
 
+    # Count valid material rows
+    valid_items = [item for item in materials
+                   if item.get('#', '') != '#' and item.get('Component', '') != 'Component']
+
     # Material rows
-    for item in materials:
+    for idx, item in enumerate(valid_items):
         row_num = item.get('#', '')
         component = item.get('Component', '')
         material = item.get('Material', '')
 
-        # Skip header-like rows
-        if row_num == '#' or component == 'Component':
-            continue
+        is_last_row = (idx == len(valid_items) - 1)
+        bottom_border = THIN_BORDER if is_last_row else DOT_BORDER
 
         # Row number
         ws.cell(row=row, column=1, value=row_num).font = FONT_SMALL
         ws.cell(row=row, column=1).alignment = ALIGN_CENTER
-        ws.cell(row=row, column=1).border = BORDER_ALL
+        ws.cell(row=row, column=1).border = Border(
+            left=THIN_BORDER, right=DOT_BORDER, bottom=bottom_border
+        )
 
         # Component (columns B-E)
         ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=5)
         ws.cell(row=row, column=2, value=component).font = FONT_LABEL
         for col in range(2, 6):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+            ws.cell(row=row, column=col).border = Border(
+                right=DOT_BORDER, bottom=bottom_border
+            )
 
         # Material (columns F-J)
         ws.merge_cells(start_row=row, start_column=6, end_row=row, end_column=10)
         ws.cell(row=row, column=6, value=material).font = FONT_VALUE
         for col in range(6, 11):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+            r_border = THIN_BORDER if col == 10 else DOT_BORDER
+            ws.cell(row=row, column=col).border = Border(
+                right=r_border, bottom=bottom_border
+            )
 
         row += 1
 
@@ -421,17 +547,17 @@ def write_materials_section(ws, start_row: int, materials: list[dict]) -> int:
 
 
 def write_remarks_section(ws, start_row: int, remarks: list[dict]) -> int:
-    """Write the remarks section."""
+    """Write the remarks/notes section with professional numbered format."""
     row = start_row
 
     # Section header
     ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=10)
-    ws.cell(row=row, column=1, value='REMARKS').font = FONT_SECTION
+    ws.cell(row=row, column=1, value='NOTES').font = FONT_SECTION
     ws.cell(row=row, column=1).alignment = ALIGN_LEFT
     apply_borders_to_range(ws, row, row, 1, 10)
     row += 1
 
-    # Remarks rows (at least 3)
+    # Notes rows (at least 3)
     num_remarks = max(len(remarks), 3)
     for i in range(num_remarks):
         remark_text = ''
@@ -439,14 +565,23 @@ def write_remarks_section(ws, start_row: int, remarks: list[dict]) -> int:
             item = remarks[i]
             remark_text = item.get('Remark', '')
 
-        ws.cell(row=row, column=1, value=i + 1).font = FONT_SMALL
+        is_last_row = (i == num_remarks - 1)
+        bottom_border = THIN_BORDER if is_last_row else DOT_BORDER
+
+        # Row number with closing parenthesis: "1)", "2)", etc.
+        ws.cell(row=row, column=1, value=f'{i + 1})').font = FONT_SMALL
         ws.cell(row=row, column=1).alignment = ALIGN_CENTER
-        ws.cell(row=row, column=1).border = BORDER_ALL
+        ws.cell(row=row, column=1).border = Border(
+            left=THIN_BORDER, right=DOT_BORDER, bottom=bottom_border
+        )
 
         ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=10)
         ws.cell(row=row, column=2, value=remark_text).font = FONT_VALUE
         for col in range(2, 11):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+            r_border = THIN_BORDER if col == 10 else None
+            ws.cell(row=row, column=col).border = Border(
+                right=r_border, bottom=bottom_border
+            )
 
         row += 1
 
@@ -454,73 +589,89 @@ def write_remarks_section(ws, start_row: int, remarks: list[dict]) -> int:
 
 
 def write_revision_section(ws, start_row: int, revisions: list[dict]) -> int:
-    """Write the revision history section."""
+    """Write the revision history section with compact single-row format."""
     row = start_row
 
-    # Section header
-    ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=10)
-    ws.cell(row=row, column=1, value='REVISION HISTORY').font = FONT_SECTION
-    ws.cell(row=row, column=1).alignment = ALIGN_LEFT
-    apply_borders_to_range(ws, row, row, 1, 10)
-    row += 1
-
-    # Column headers
-    ws.cell(row=row, column=1, value='Rev').font = FONT_SMALL
-    ws.cell(row=row, column=1).alignment = ALIGN_CENTER
-    ws.cell(row=row, column=1).border = BORDER_ALL
-
-    ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
-    ws.cell(row=row, column=2, value='Date').font = FONT_SMALL
-    for col in range(2, 4):
-        ws.cell(row=row, column=col).border = BORDER_ALL
-
-    ws.merge_cells(start_row=row, start_column=4, end_row=row, end_column=8)
-    ws.cell(row=row, column=4, value='Description').font = FONT_SMALL
-    for col in range(4, 9):
-        ws.cell(row=row, column=col).border = BORDER_ALL
-
-    ws.merge_cells(start_row=row, start_column=9, end_row=row, end_column=10)
-    ws.cell(row=row, column=9, value='By').font = FONT_SMALL
-    for col in range(9, 11):
-        ws.cell(row=row, column=col).border = BORDER_ALL
-    row += 1
-
-    # Revision rows (at least 3)
-    num_revisions = max(len(revisions), 3)
+    # Compact revision rows (3 minimum): "Rev.1: Date:" | [date] | | "DESC:" | [description]
+    num_revisions = 3
     for i in range(num_revisions):
-        rev = ''
         date = ''
         description = ''
-        by = ''
 
         if i < len(revisions):
             item = revisions[i]
-            rev = item.get('Rev', '')
             date = item.get('Date', '')
             description = item.get('Description', '')
-            by = item.get('By', '')
 
-        ws.cell(row=row, column=1, value=rev).font = FONT_SMALL
-        ws.cell(row=row, column=1).alignment = ALIGN_CENTER
+        # "Rev.N: Date:" label (columns A-B)
+        ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=2)
+        ws.cell(row=row, column=1, value=f'Rev.{i + 1}: Date:').font = FONT_SMALL
         ws.cell(row=row, column=1).border = BORDER_ALL
+        ws.cell(row=row, column=2).border = BORDER_ALL
 
-        ws.merge_cells(start_row=row, start_column=2, end_row=row, end_column=3)
-        ws.cell(row=row, column=2, value=date).font = FONT_SMALL
-        for col in range(2, 4):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+        # Date value (column C)
+        ws.cell(row=row, column=3, value=date).font = FONT_VALUE
+        ws.cell(row=row, column=3).border = BORDER_ALL
 
-        ws.merge_cells(start_row=row, start_column=4, end_row=row, end_column=8)
-        ws.cell(row=row, column=4, value=description).font = FONT_VALUE
-        for col in range(4, 9):
-            ws.cell(row=row, column=col).border = BORDER_ALL
+        # "DESC:" label (column D)
+        ws.cell(row=row, column=4, value='DESC:').font = FONT_SMALL
+        ws.cell(row=row, column=4).border = BORDER_ALL
 
-        ws.merge_cells(start_row=row, start_column=9, end_row=row, end_column=10)
-        ws.cell(row=row, column=9, value=by).font = FONT_SMALL
-        for col in range(9, 11):
+        # Description (columns E-J)
+        ws.merge_cells(start_row=row, start_column=5, end_row=row, end_column=10)
+        ws.cell(row=row, column=5, value=description).font = FONT_VALUE
+        for col in range(5, 11):
             ws.cell(row=row, column=col).border = BORDER_ALL
 
         row += 1
 
+    return row
+
+
+def write_footer_section(ws, start_row: int, equipment_tag: str) -> int:
+    """Write the footer section with Date Released, Spec Status, and tag repeat."""
+    row = start_row
+
+    # Blank separator row
+    for col in range(1, 11):
+        ws.cell(row=row, column=col).border = Border(left=THIN_BORDER if col == 1 else None,
+                                                      right=THIN_BORDER if col == 10 else None)
+    row += 1
+
+    # Date Released row
+    ws.cell(row=row, column=1).border = Border(left=THIN_BORDER)
+    ws.cell(row=row, column=2, value='Date Released:').font = FONT_LABEL
+    ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=4)
+    ws.cell(row=row, column=3).font = FONT_VALUE
+    for col in range(5, 10):
+        ws.cell(row=row, column=col).border = Border()
+    ws.cell(row=row, column=10).border = Border(right=THIN_BORDER)
+    row += 1
+
+    # Spec Status row
+    ws.cell(row=row, column=1).border = Border(left=THIN_BORDER)
+    ws.cell(row=row, column=2, value='Spec. Status:').font = FONT_LABEL
+    ws.merge_cells(start_row=row, start_column=3, end_row=row, end_column=4)
+    ws.cell(row=row, column=3).font = FONT_VALUE
+    for col in range(5, 10):
+        ws.cell(row=row, column=col).border = Border()
+    ws.cell(row=row, column=10).border = Border(right=THIN_BORDER)
+    row += 1
+
+    # Footer row with tag number at bottom right
+    for col in range(1, 7):
+        b_left = THIN_BORDER if col == 1 else None
+        ws.cell(row=row, column=col).border = Border(left=b_left, bottom=THIN_BORDER)
+
+    # Tag number at bottom right (bold)
+    ws.merge_cells(start_row=row, start_column=7, end_row=row, end_column=10)
+    ws.cell(row=row, column=7, value=equipment_tag).font = FONT_VALUE_BOLD
+    ws.cell(row=row, column=7).alignment = ALIGN_RIGHT
+    for col in range(7, 11):
+        r_border = THIN_BORDER if col == 10 else None
+        ws.cell(row=row, column=col).border = Border(right=r_border, bottom=THIN_BORDER)
+
+    row += 1
     return row
 
 

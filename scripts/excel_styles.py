@@ -33,7 +33,9 @@ NO_FILL = PatternFill(fill_type=None)
 # =============================================================================
 
 THIN_BORDER = Side(style='thin', color=BLACK)
+DOT_BORDER = Side(style='dotted', color=BLACK)
 
+# Standard border - solid on all sides
 BORDER_ALL = Border(
     left=THIN_BORDER,
     right=THIN_BORDER,
@@ -42,6 +44,28 @@ BORDER_ALL = Border(
 )
 
 BORDER_NONE = Border()
+
+# Professional border presets for mixed styling
+BORDER_OUTER_ONLY = Border(
+    left=THIN_BORDER,
+    right=THIN_BORDER,
+    top=THIN_BORDER,
+    bottom=THIN_BORDER
+)
+
+BORDER_TOP_BOTTOM = Border(
+    top=THIN_BORDER,
+    bottom=THIN_BORDER
+)
+
+BORDER_LEFT_SOLID = Border(left=THIN_BORDER)
+BORDER_RIGHT_SOLID = Border(right=THIN_BORDER)
+BORDER_BOTTOM_SOLID = Border(bottom=THIN_BORDER)
+
+# Dotted internal borders
+BORDER_RIGHT_DOT = Border(right=DOT_BORDER)
+BORDER_BOTTOM_DOT = Border(bottom=DOT_BORDER)
+BORDER_RIGHT_BOTTOM_DOT = Border(right=DOT_BORDER, bottom=DOT_BORDER)
 
 
 # =============================================================================
@@ -60,8 +84,14 @@ FONT_LABEL = Font(name='Arial', size=10)
 # Value: 10pt regular
 FONT_VALUE = Font(name='Arial', size=10)
 
+# Value bold: 10pt bold (for prominent fields like Tag No)
+FONT_VALUE_BOLD = Font(name='Arial', size=10, bold=True)
+
 # Small: 8pt regular (row numbers, units, notes)
 FONT_SMALL = Font(name='Arial', size=8)
+
+# Tiny: 7pt regular (approval labels: DES BY, CHK BY, APP BY, etc.)
+FONT_TINY = Font(name='Arial', size=7)
 
 # Default: 11pt (Excel default, used for unstyled cells)
 FONT_DEFAULT = Font(name='Arial', size=11)
@@ -245,6 +275,45 @@ def apply_borders_to_range(worksheet, start_row, end_row, start_col, end_col):
         for col in range(start_col, end_col + 1):
             cell = worksheet.cell(row=row, column=col)
             cell.border = BORDER_ALL
+            cell.fill = NO_FILL
+
+
+def apply_professional_borders(worksheet, start_row, end_row, start_col, end_col):
+    """Apply professional borders: solid outer edges, dotted internal dividers.
+
+    Creates a clean, professional look matching instrument datasheets:
+    - Solid borders on outer edges (left, right, top, bottom of range)
+    - Dotted borders for internal row/column dividers
+    """
+    for row in range(start_row, end_row + 1):
+        for col in range(start_col, end_col + 1):
+            cell = worksheet.cell(row=row, column=col)
+
+            # Determine border style for each side
+            left = THIN_BORDER if col == start_col else DOT_BORDER
+            right = THIN_BORDER if col == end_col else DOT_BORDER
+            top = THIN_BORDER if row == start_row else DOT_BORDER
+            bottom = THIN_BORDER if row == end_row else DOT_BORDER
+
+            cell.border = Border(left=left, right=right, top=top, bottom=bottom)
+            cell.fill = NO_FILL
+
+
+def apply_section_borders(worksheet, start_row, end_row, start_col, end_col):
+    """Apply section-style borders: solid on all outer edges, dotted on bottom of each row.
+
+    Used for data sections where rows should be visually separated but contained.
+    """
+    for row in range(start_row, end_row + 1):
+        for col in range(start_col, end_col + 1):
+            cell = worksheet.cell(row=row, column=col)
+
+            left = THIN_BORDER if col == start_col else None
+            right = THIN_BORDER if col == end_col else DOT_BORDER
+            top = THIN_BORDER if row == start_row else None
+            bottom = THIN_BORDER if row == end_row else DOT_BORDER
+
+            cell.border = Border(left=left, right=right, top=top, bottom=bottom)
             cell.fill = NO_FILL
 
 
