@@ -75,11 +75,12 @@ components/          <- BOM definitions
 
 | Reference | When to Read |
 |-----------|--------------|
-| `equipment_catalog.md` | Selecting templates, equipment coverage |
-| `template_format.md` | Creating/editing templates, field types |
-| `scripts_guide.md` | CLI options, automation details |
-| `bom_system.md` | Package → component relationships |
-| `RFQ_workflow.md` | General procurement workflow |
+| `equipment_catalog.md` | Complete 102-template inventory with typical applications |
+| `template_format.md` | Creating/editing templates, YAML frontmatter, field types, naming conventions |
+| `scripts_guide.md` | CLI options, batch processing, CI/CD integration |
+| `bom_system.md` | Expand package templates into component BOMs for detailed RFQs |
+| `RFQ_workflow.md` | End-to-end procurement workflow, validation checklists |
+| `project-info.md` | Python requirements, markdown philosophy, license |
 
 ## Key Principles
 
@@ -115,9 +116,4 @@ python scripts/validate_datasheet.py --all
 python scripts/generate_bom.py templates/101-SC.md
 ```
 
-## Template ID Convention
-
-- **Area-prefixed**: `NNN-XXX` (e.g., `101-SC`, `640-DIG`) — Process-specific equipment
-- **Universal**: `XX-YYY` (e.g., `PP-CEN`, `BL-TURBO`) — Equipment used across areas
-
-Select universal templates based on application rather than area code.
+**Template naming conventions**: See `references/template_format.md`
