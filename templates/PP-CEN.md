@@ -1,13 +1,13 @@
 ---
 schema_version: 1
-template_id: 600-PP-SUB
-title: SUBMERSIBLE PUMP
-service: WET WELL PUMPING
+template_id: PP-CEN
+title: CENTRIFUGAL PUMP
+service: PUMPING
 has_motor: true
 category: pumps
 ---
 
-# SUBMERSIBLE PUMP DATASHEET
+# CENTRIFUGAL PUMP DATASHEET
 
 ## Document Control
 
@@ -35,41 +35,42 @@ category: pumps
 | # | field_id | Field | Value | Units | Type | Options |
 |---|----------|-------|-------|-------|------|---------|
 | 1 | service | Service Description | | | text | |
-| 2 | fluid | Pumped Fluid | | | dropdown | ["Raw Sewage","Stormwater","Combined Sewage","Sludge","Scum","Industrial Wastewater"] |
+| 2 | fluid | Pumped Fluid | | | dropdown | ["Raw Sewage","Primary Effluent","Secondary Effluent","RAS","WAS","Thickened Sludge","Digested Sludge","Filtrate","Washwater","Chemical"] |
 | 3 | qdesign | Design Flow Rate | | m³/h | number | |
 | 4 | qmin | Minimum Flow | | m³/h | number | |
 | 5 | qmax | Maximum Flow | | m³/h | number | |
 | 6 | num_duty | Number of Duty Pumps | | | number | |
 | 7 | num_standby | Number of Standby Pumps | | | number | |
 | 8 | tdh | Total Dynamic Head | | m | number | |
-| 9 | static_head | Static Discharge Head | | m | number | |
-| 10 | friction_head | Friction Head Loss | | m | number | |
-| 11 | submergence | Minimum Submergence | | m | number | |
-| 12 | sg | Specific Gravity | | | number | |
-| 13 | temp | Fluid Temperature | | °C | number | |
-| 14 | solids | Solids Content | | % | number | |
-| 15 | free_passage | Free Passage (sphere) | | mm | number | |
-| 16 | impeller_type | Impeller Type | | | dropdown | ["Vortex","Channel","Semi-Open","Grinder"] |
-| 17 | discharge_nozzle | Discharge Nozzle Size | | mm | number | |
-| 18 | nozzle_rating | Discharge Flange Rating | | | dropdown | ["PN10","PN16","PN25","150#","300#"] |
-| 19 | shaft_power | Shaft Power at Design | | kW | number | |
-| 20 | efficiency | Pump Efficiency (at BEP) | | % | number | |
-| 21 | cooling | Motor Cooling | | | dropdown | ["Fluid Cooled","Oil Filled","Air Filled"] |
-| 22 | cable_length | Cable Length | | m | number | |
-| 23 | guide_rail | Guide Rail System | | | dropdown | ["Yes","No"] |
-| 24 | auto_coupling | Automatic Coupling | | | dropdown | ["Yes","No"] |
-| 25 | lifting | Lifting Chain/Cable | | | dropdown | ["Stainless Chain","Galvanized Cable","Stainless Cable"] |
-| 26 | level_control | Level Control | | | dropdown | ["Float Switches","Ultrasonic","Pressure Transducer"] |
+| 9 | suction_head | Suction Head (static) | | m | number | |
+| 10 | discharge_head | Discharge Head (static) | | m | number | |
+| 11 | npsha | NPSH Available | | m | number | |
+| 12 | npshr | NPSH Required | | m | number | |
+| 13 | sg | Specific Gravity | | | number | |
+| 14 | temp | Fluid Temperature | | °C | number | |
+| 15 | solids | Solids Content | | % | number | |
+| 16 | max_particle | Maximum Particle Size | | mm | number | |
+| 17 | viscosity | Viscosity (if non-Newtonian) | | cP | number | |
+| 18 | pump_type | Pump Type | | | dropdown | ["End Suction","Vertical Inline","Split Case","Vertical Turbine","Self-Priming"] |
+| 19 | mounting | Mounting | | | dropdown | ["Horizontal","Vertical","Submersible"] |
+| 20 | op.impeller | Impeller Type | | | dropdown | ["Closed","Semi-Open","Recessed","Vortex","Non-Clog"] |
+| 21 | seal_type | Seal Type | | | dropdown | ["Mechanical Single","Mechanical Double","Packing","Magnetic Drive"] |
+| 22 | suction_nozzle | Suction Nozzle Size | | mm | number | |
+| 23 | discharge_nozzle | Discharge Nozzle Size | | mm | number | |
+| 24 | nozzle_rating | Nozzle Flange Rating | | | dropdown | ["PN10","PN16","PN25","150#","300#"] |
+| 25 | speed | Operating Speed | | RPM | number | |
+| 26 | shaft_power | Shaft Power at Design | | kW | number | |
+| 27 | efficiency | Pump Efficiency (at BEP) | | % | number | |
 
 ## Materials
 
 | # | field_id | Component | Material |
 |---|----------|-----------|----------|
 | 1 | casing | Pump Casing | |
-| 2 | impeller | Impeller | |
-| 3 | motor_housing | Motor Housing | |
-| 4 | shaft | Shaft | |
-| 5 | seals | Mechanical Seals | |
+| 2 | mat.impeller | Impeller | |
+| 3 | shaft | Shaft | |
+| 4 | wear_rings | Wear Rings | |
+| 5 | seal | Mechanical Seal Faces | |
 | 6 | fasteners | Fasteners | 316 SS |
 
 ## Driver / Motor Data

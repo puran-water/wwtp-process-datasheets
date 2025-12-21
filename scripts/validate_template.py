@@ -44,11 +44,16 @@ OPTIONAL_FRONTMATTER = {
 REQUIRED_SECTIONS = [
     'Document Control',
     'Service Information',
-    'Operating / Design Data',
+    'Operating / Design Data',  # Also accepts variants like "Operating / Design Data - Hot Side"
     'Materials',
     'Remarks',
     'Revision History',
 ]
+
+# Section name patterns for flexible matching
+SECTION_PATTERNS = {
+    'Operating / Design Data': r'^Operating / Design Data',  # Matches variants
+}
 
 VALID_FIELD_TYPES = ['number', 'text', 'dropdown', 'date', 'readonly']
 
@@ -231,7 +236,12 @@ def validate_field_id_uniqueness(sections: dict[str, tuple[int, str]]) -> list[V
 
     # Collect field_ids from all relevant sections
     for section_name, (line_num, section_content) in sections.items():
-        if section_name not in ['Operating / Design Data', 'Driver / Motor Data', 'Materials', 'Electrical Data']:
+        # Check if section is relevant for field_id collection
+        is_relevant = (
+            section_name.startswith('Operating / Design Data') or
+            section_name in ['Driver / Motor Data', 'Materials', 'Electrical Data']
+        )
+        if not is_relevant:
             continue
 
         # Find table in section
@@ -261,7 +271,12 @@ def get_all_field_ids(sections: dict[str, tuple[int, str]]) -> set[str]:
     """Extract all field_ids from a template's sections."""
     field_ids = set()
     for section_name, (line_num, section_content) in sections.items():
-        if section_name not in ['Operating / Design Data', 'Driver / Motor Data', 'Materials', 'Electrical Data']:
+        # Check if section is relevant for field_id collection
+        is_relevant = (
+            section_name.startswith('Operating / Design Data') or
+            section_name in ['Driver / Motor Data', 'Materials', 'Electrical Data']
+        )
+        if not is_relevant:
             continue
         table_match = re.search(r'(\|.+\|[\s\S]*?)(?=\n\n|\n##|\Z)', section_content)
         if table_match:
@@ -359,10 +374,16 @@ def validate_template(filepath: Path) -> tuple[bool, list[ValidationError]]:
     # Find sections
     sections = find_sections(content)
 
-    # Check required sections
+    # Check required sections (with pattern matching for flexible section names)
     for section in REQUIRED_SECTIONS:
-        if section not in sections:
-            errors.append(ValidationError('ERROR', f'Missing required section: {section}'))
+        if section in sections:
+            continue
+        # Check if this section has a pattern that matches any actual section
+        if section in SECTION_PATTERNS:
+            pattern = SECTION_PATTERNS[section]
+            if any(re.match(pattern, s) for s in sections.keys()):
+                continue
+        errors.append(ValidationError('ERROR', f'Missing required section: {section}'))
 
     # Check for Driver / Motor Data if has_motor is true
     if frontmatter.get('has_motor', False):
@@ -383,7 +404,7 @@ def validate_template(filepath: Path) -> tuple[bool, list[ValidationError]]:
         table_text = table_match.group(1)
 
         # Validate based on section type
-        if section_name == 'Operating / Design Data':
+        if section_name == 'Operating / Design Data' or section_name.startswith('Operating / Design Data'):
             errors.extend(validate_table_structure(
                 table_text, DATA_TABLE_COLUMNS, section_name, line_num))
             errors.extend(validate_field_types(table_text, section_name, line_num))
