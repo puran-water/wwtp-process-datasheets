@@ -26,7 +26,9 @@ Package templates (like `101-SC`, `230-AT`) define complete systems that include
 
 ## BOM Definition Files
 
-BOM definitions are YAML files in `components/` directory:
+BOM definitions are YAML files in `components/` directory. Create BOM files as needed for package templates.
+
+### Existing BOM Files
 
 | File | Package |
 |------|---------|
@@ -37,6 +39,44 @@ BOM definitions are YAML files in `components/` directory:
 | `bom_310-DMF.yaml` | Pressure Filter |
 | `bom_420-UV.yaml` | UV Disinfection |
 | `bom_601-GT.yaml` | Gravity Thickener |
+
+### Package → Component Relationships
+
+Reference for creating additional BOM files (from `process_units_hierarchy.json`):
+
+| Package | Typical Components |
+|---------|-------------------|
+| `101-SC` | 101-SCR, 101-WC, 101-CV |
+| `101-GR` | 101-GSP, 101-GW, 101-CV, PP-CEN |
+| `101-FSC` | 101-WC, 101-CV |
+| `130-CL` | 130-CM, PP-CEN |
+| `130-DAF` | 130-SAT, PP-CEN |
+| `230-AT` | 230-BL, 230-DF, PP-CEN |
+| `240-SC` | 240-CM, PP-CEN |
+| `250-MBR` | BL-REGEN, PP-CEN |
+| `250-XMBR` | PP-CEN, PP-HP |
+| `260-TF` | 260-TFD, PP-CEN |
+| `280-SBR` | 280-DEC, 230-BL, 230-DF, MX-SUB |
+| `310-DMF` | 310-FV, PP-CEN |
+| `310-GSF` | PP-CEN |
+| `320-UF` | BL-REGEN, PP-CEN, PP-CIP |
+| `320-PUF` | PP-CEN, PP-CIP |
+| `330-GAC` | V-FRP, PP-CEN |
+| `330-IX` | V-FRP, PP-CEN |
+| `340-DEG` | BL-REGEN, PP-CEN |
+| `350-ROS` | 350-ROM, 350-ROV, PP-HP, PP-CIP |
+| `401-CL` | PP-DIAP, MX-STATIC, TK-POLY |
+| `401-O3` | 401-O3D |
+| `420-UV` | 420-UVR |
+| `501-MEE` | HX-ST, PP-CEN |
+| `501-MVR` | 730-CMP, HX-ST, PP-CEN |
+| `510-FC` | HX-ST, PP-CEN |
+| `601-GT` | 601-TM, PP-PCP |
+| `610-BFP` | PP-PCP |
+| `610-CFG` | PP-PCP |
+| `640-DIG` | 640-GH, MX-TOPENTRY, HX-ST, PP-PCP |
+| `710-BIO` | PP-CEN, BL-REGEN |
+| `740-MEM` | 730-CMP |
 
 ### File Structure
 
@@ -146,17 +186,31 @@ qty: 2                              # If included, qty = 2
 
 ## Package Templates
 
-These templates have BOM definitions:
+Package templates define complete systems with multiple components. See [Package → Component Relationships](#package--component-relationships) for the full list.
 
-| Package | BOM File | Typical Components |
-|---------|----------|-------------------|
-| `101-SC` | `bom_101-SC.yaml` | Screens, washer-compactor, conveyors |
-| `101-GR` | `bom_101-GR.yaml` | Grit chamber, grit washer, pumps |
-| `130-CL` | `bom_130-CL.yaml` | Clarifier mechanism, sludge pumps |
-| `230-AT` | `bom_230-AT.yaml` | Blowers, diffuser grids, mixers |
-| `310-DMF` | `bom_310-DMF.yaml` | Filter vessels, backwash pumps |
-| `420-UV` | `bom_420-UV.yaml` | UV reactor modules, cleaning system |
-| `601-GT` | `bom_601-GT.yaml` | Thickener mechanism, underflow pumps |
+**Key packages with existing BOM files:**
+
+| Package | Description | Components |
+|---------|-------------|------------|
+| `101-SC` | Screening Package | Screens, washer-compactor, conveyors |
+| `101-GR` | Grit Removal | Grit separator, grit washer, pumps |
+| `130-CL` | Primary Clarifier | Mechanism, sludge pumps |
+| `230-AT` | Aeration Tank | Blowers, diffusers, RAS pumps |
+| `310-DMF` | Pressure Filter | Filter vessels, backwash pumps |
+| `420-UV` | UV Disinfection | Reactor modules, cleaning system |
+| `601-GT` | Gravity Thickener | Mechanism, underflow pumps |
+
+**Additional packages (BOM files to be created as needed):**
+
+| Package | Description | Components |
+|---------|-------------|------------|
+| `250-MBR` | Submerged MBR | Air scour blowers, permeate pumps |
+| `280-SBR` | Sequencing Batch Reactor | Decanter, blowers, diffusers, mixers |
+| `350-ROS` | RO Skid Package | Membranes, pressure vessels, HP pumps |
+| `401-CL` | Chlorination System | Dosing pumps, static mixers, storage tank |
+| `401-O3` | Ozone System | Generator, destruct unit |
+| `501-MEE` | Multi-Effect Evaporator | Heat exchangers, circulation pumps |
+| `640-DIG` | Anaerobic Digester | Gas holder, mixers, heat exchangers, feed pumps |
 
 ---
 
