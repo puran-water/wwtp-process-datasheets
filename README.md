@@ -6,6 +6,23 @@ Markdown-native datasheet templates with automated Excel generation for wastewat
 
 This skill provides **vendor-ready process datasheets** for common wastewater treatment package equipment. Templates are maintained in markdown for easy editing and version control, with automated conversion to professionally-styled Excel files.
 
+## Why Markdown as Source of Truth?
+
+This project follows [Puran Water's core principles](https://github.com/puran-water) for AI-native engineering tools:
+
+| Principle | Benefit |
+|-----------|---------|
+| **LLM-native format** | Markdown is the native "word processor" for AI agents, enabling seamless reading/writing without parsing overhead |
+| **Git version control** | Plain text templates are diffable—track changes, rollback errors, review PRs on engineering datasheets like code |
+| **Machine-readable** | No binary blobs; all content is structured text that can be parsed, validated, and transformed programmatically |
+| **Cross-platform** | Renders in GitHub, VS Code, Obsidian, and any text editor without proprietary software |
+| **Client deliverable conversion** | When vendors require traditional formats, automated scripts convert markdown to professionally-styled Excel |
+
+This inverts the traditional workflow where engineers fill Excel templates manually. Instead:
+1. **AI agents** can read, populate, and validate markdown templates programmatically
+2. **Engineers** review and approve in plain text with full git history
+3. **Vendors** receive professional Excel datasheets generated from the version-controlled source
+
 ## Equipment Types Covered
 
 | Area | Equipment |
@@ -14,7 +31,7 @@ This skill provides **vendor-ready process datasheets** for common wastewater tr
 | **Primary (130)** | Primary clarifiers, Lamella clarifiers |
 | **Secondary (230/240)** | Aeration tanks, Secondary clarifiers |
 | **Tertiary (310/420)** | Pressure filters, UV disinfection |
-| **Solids (510)** | Gravity thickeners |
+| **Solids (601)** | Gravity thickeners |
 
 ## Quick Start
 
@@ -45,7 +62,7 @@ templates/               <- Source of truth (markdown)
 ├── 240-SC.md           (Secondary Clarifier)
 ├── 310-DMF.md          (Pressure Filter)
 ├── 420-UV.md           (UV Disinfection)
-└── 510-GT.md           (Gravity Thickener)
+└── 601-GT.md           (Gravity Thickener)
 
 scripts/
 ├── md_to_excel.py       <- Generates Excel from markdown
@@ -58,6 +75,10 @@ assets/                  <- Generated artifacts (Excel)
 ├── ...
 
 references/              <- Guidance documents
+├── equipment_catalog.md
+├── template_format.md
+├── scripts_guide.md
+├── bom_system.md
 ├── RFQ_workflow.md
 ├── Grit_Removal_Package_guidance.md
 ├── ...
@@ -68,7 +89,7 @@ references/              <- Guidance documents
 1. **Edit markdown source** - Modify `templates/<equipment>.md`
 2. **Validate template** - `python3 scripts/validate_template.py templates/<equipment>.md`
 3. **Generate Excel** - `python3 scripts/md_to_excel.py templates/<equipment>.md`
-4. **Fill project data** - Complete values in generated Excel
+4. **Add approvals** - Only signatures (DES BY, CHK BY, APP BY) entered in Excel
 5. **Run completeness check** - `python3 scripts/validate_datasheet.py assets/<equipment>.xlsx`
 6. **Issue with RFQ** - Include P&ID, site plan, hydraulic profile
 
