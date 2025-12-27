@@ -1,0 +1,132 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://circleh2o.com/schemas/datasheet-output.schema.yaml"
+title: datasheet_output
+description: |
+  Schema for process datasheet artifacts.
+  Validates output from wwtp-process-datasheets skill.
+
+type: object
+required:
+  - equipment_tag
+  - template_id
+  - source_md
+  - output_xlsx
+
+properties:
+  equipment_tag:
+    type: string
+    pattern: "^[0-9]{3}-[A-Z]{2,4}-[0-9]{3}[A-Z]?$"
+    description: "Equipment tag (e.g., 200-BL-001A)"
+
+  template_id:
+    type: string
+    description: "Template used (e.g., BL-PD, 101-SC)"
+
+  title:
+    type: string
+    description: "Datasheet title from template"
+
+  service:
+    type: string
+    description: "Equipment service description"
+
+  category:
+    type: string
+    enum:
+      - preliminary_treatment
+      - primary_treatment
+      - secondary_treatment
+      - tertiary_treatment
+      - disinfection
+      - brine
+      - sludge
+      - biogas
+      - pumps
+      - blowers
+      - mixers
+      - tanks
+      - vessels
+      - heat_exchangers
+      - filters
+
+  source_md:
+    type: string
+    description: "Path to markdown source file"
+
+  output_xlsx:
+    type: string
+    description: "Path to generated Excel file"
+
+  document_control:
+    type: object
+    properties:
+      project:
+        type: string
+      client:
+        type: string
+      revision:
+        type: string
+      date:
+        type: string
+      doc_number:
+        type: string
+
+  equipment_summary:
+    type: object
+    description: "Key equipment parameters extracted from datasheet"
+    properties:
+      capacity:
+        type: string
+      power_kW:
+        type: number
+      material:
+        type: string
+      quantity:
+        type: integer
+      redundancy:
+        type: string
+
+  validation:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - draft
+          - validated
+          - ready_for_rfq
+          - issued
+      completeness_pct:
+        type: number
+        minimum: 0
+        maximum: 100
+      missing_fields:
+        type: array
+        items:
+          type: string
+      validated_at:
+        type: string
+        format: date-time
+
+  source_artifact:
+    type: string
+    description: "ID of equipment-list artifact this was generated from"
+
+  meta:
+    type: object
+    properties:
+      generated_by:
+        type: string
+        default: "process-datasheets-skill"
+      schema_version:
+        type: integer
+        default: 1
+      timestamp:
+        type: string
+        format: date-time
+      checksum_md:
+        type: string
+        description: "SHA256 of markdown source"
+      checksum_xlsx:
+        type: string
+        description: "SHA256 of Excel output"
