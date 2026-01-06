@@ -1,5 +1,5 @@
 ---
-name: process-datasheets-skill
+name: wwtp-process-datasheets
 description: |
   Tier 2 skill for generating vendor-ready RFQ process datasheets (Excel) from equipment
   list artifacts. Covers 102 templates across the full treatment train including preliminary
