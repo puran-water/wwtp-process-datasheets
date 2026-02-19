@@ -39,6 +39,18 @@ from excel_styles import (
 )
 from openpyxl.styles import Border
 
+# Import populate_template for equipment data population
+try:
+    from populate_template import (
+        populate_parsed_template,
+        load_field_mappings,
+        load_equipment_data,
+        find_equipment,
+    )
+    POPULATE_AVAILABLE = True
+except ImportError:
+    POPULATE_AVAILABLE = False
+
 
 # =============================================================================
 # MARKDOWN PARSING
@@ -686,11 +698,18 @@ def write_footer_section(ws, start_row: int, equipment_tag: str) -> int:
 # OUTPUT FILENAME GENERATION
 # =============================================================================
 
-def generate_output_filename(template: dict) -> str:
-    """Generate the output Excel filename based on template metadata."""
+def generate_output_filename(template: dict, equipment_tag: str = None) -> str:
+    """Generate the output Excel filename based on template metadata.
+
+    If equipment_tag is provided, uses it instead of generic '-01' suffix.
+    """
     metadata = template['metadata']
     template_id = metadata.get('template_id', 'UNKNOWN')
     title = metadata.get('title', 'DATASHEET')
+
+    if equipment_tag:
+        # Format: PP-LOBE 200-P-01 ROTARY LOBE PUMP.xlsx
+        return f"{template_id} {equipment_tag} {title}.xlsx"
 
     # Format: 101-GR-01 GRIT REMOVAL PACKAGE.xlsx
     return f"{template_id}-01 {title}.xlsx"
@@ -700,15 +719,37 @@ def generate_output_filename(template: dict) -> str:
 # MAIN
 # =============================================================================
 
-def convert_template(input_path: Path, output_dir: Path) -> bool:
-    """Convert a single markdown template to Excel."""
-    print(f"Converting: {input_path.name}")
+def convert_template(
+    input_path: Path,
+    output_dir: Path,
+    equipment: dict = None,
+    mappings: dict = None,
+    metadata: dict = None,
+    voltage: int = 415,
+    frequency: int = 50,
+) -> bool:
+    """Convert a single markdown template to Excel.
+
+    If equipment data is provided (with mappings), populates the template
+    values before conversion.  Without equipment data, produces a blank
+    vendor-response datasheet (existing behaviour).
+    """
+    tag = equipment.get("tag", equipment.get("equipment_tag", "")) if equipment else None
+    print(f"Converting: {input_path.name}" + (f" for {tag}" if tag else ""))
 
     try:
         template = parse_template(input_path)
+
+        # Populate with equipment data if available
+        if equipment and mappings and POPULATE_AVAILABLE:
+            populate_parsed_template(
+                template, equipment, mappings,
+                metadata or {}, voltage, frequency,
+            )
+
         workbook = build_workbook(template)
 
-        output_filename = generate_output_filename(template)
+        output_filename = generate_output_filename(template, equipment_tag=tag)
         output_path = output_dir / output_filename
 
         workbook.save(output_path)
@@ -731,6 +772,14 @@ def main():
                         help='Convert all templates in templates/ directory')
     parser.add_argument('--output-dir', '-o', default='assets',
                         help='Output directory for Excel files (default: assets)')
+    parser.add_argument('--equipment-data',
+                        help='Path to equipment list (QMD/YAML) for populating values')
+    parser.add_argument('--equipment-tag',
+                        help='Equipment tag to populate (requires --equipment-data)')
+    parser.add_argument('--voltage', type=int, default=415,
+                        help='System voltage for motor data (default: 415)')
+    parser.add_argument('--frequency', type=int, default=50,
+                        help='System frequency for motor data (default: 50)')
 
     args = parser.parse_args()
 
@@ -742,6 +791,22 @@ def main():
     if not output_dir.is_absolute():
         output_dir = project_dir / output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load equipment data if provided
+    equip_data = None
+    equip_metadata = {}
+    field_mappings = None
+    if args.equipment_data and POPULATE_AVAILABLE:
+        equip_path = Path(args.equipment_data)
+        if equip_path.exists():
+            equip_metadata, equip_list = load_equipment_data(equip_path)
+            field_mappings = load_field_mappings()
+            if args.equipment_tag:
+                equip_data = find_equipment(equip_list, args.equipment_tag)
+                if equip_data is None:
+                    print(f"Warning: Tag '{args.equipment_tag}' not found in equipment list")
+        else:
+            print(f"Warning: Equipment data not found: {equip_path}")
 
     # Collect files to convert
     if args.all:
@@ -765,7 +830,14 @@ def main():
             print(f"Warning: File not found: {filepath}")
             continue
 
-        if convert_template(filepath, output_dir):
+        if convert_template(
+            filepath, output_dir,
+            equipment=equip_data,
+            mappings=field_mappings,
+            metadata=equip_metadata,
+            voltage=args.voltage,
+            frequency=args.frequency,
+        ):
             success_count += 1
 
     print(f"\nCompleted: {success_count}/{len(files)} templates converted successfully")
